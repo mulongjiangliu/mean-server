@@ -1,0 +1,7 @@
+{
+    "host": "localhost",
+    "port": "8080",
+    "dbhost": "localhost",
+    "dbport": "27017",
+    "dbname": "meanblog"
+}
