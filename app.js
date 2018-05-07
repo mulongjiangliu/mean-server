@@ -22,10 +22,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/client/public')));
 
-app.use('/', indexRoute, );
+app.use('/', indexRoute);
 app.use('/auth', authRoute)
 app.use('/post', postRoute)
-app.use('*', indexRoute);
+//app.use('*', indexRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -42,7 +42,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('404.html');
 });
 
 module.exports = app;

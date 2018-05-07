@@ -1,11 +1,13 @@
 const express = require('express');
 const crypto = require('crypto');
+const bodyParser = require('body-parser');
 const Auth = require('../db_models/auth');
 
 let router = express.Router();
 
 const sha = 'RSA-SHA256';
-const salt = 'mean'
+const salt = 'mean';
+const txtParser = bodyParser.text();
 
 function encrypt(password) {
   let sha256 = crypto.createHash(sha);
@@ -15,7 +17,9 @@ function encrypt(password) {
 
 async function duplicatedName(name) {
   let ret = '';
-  await Auth.findOne({ 'username': name }, (err, doc) => {
+  await Auth.findOne({
+    'username': name
+  }, (err, doc) => {
     if (doc || err) {
       ret = err || 'Name already exits!';
     }
@@ -23,33 +27,8 @@ async function duplicatedName(name) {
   return ret;
 }
 
-router.post('/signup', async (req, res, next) => {
-  let name = req.body.username;
-  let pw = req.body.password;
-  if (!name && !pw) {
-    res.send('bad request or content type.');
-  } else if (/[\."$*<>:|?\/]/.test(name)) {
-    res.send('Special characters are not allowed.');
-  } else {
-    pw = encrypt(pw);
-    let duplicate = await duplicatedName(name);
-    if (duplicate) {
-      res.send(duplicate);
-    } else {
-      let user = new Auth({ username: name, password: pw });
-      user.save((err) => {
-        if (err) {
-          res.send(err);
-        } else {
-          res.send('true');
-        }
-      });
-    }
-  }
-})
-
-router.post('/checkname', async (req, res, next) => {
-  let name = req.body.username;
+router.post('/checkname', txtParser, async (req, res, next) => {
+  let name = req.body;
   if (!name) {
     res.send('bad request or content type.');
   } else if (/[\."$*<>:|?\/]/.test(name)) {
@@ -64,6 +43,34 @@ router.post('/checkname', async (req, res, next) => {
   }
 })
 
+router.post('/signup', async (req, res, next) => {
+  let name = req.body.username;
+  let pw = req.body.password;
+  if (!name && !pw) {
+    res.send('bad request or content type.');
+  } else if (/[\."$*<>:|?\/]/.test(name)) {
+    res.send('Special characters are not allowed.');
+  } else {
+    pw = encrypt(pw);
+    let duplicate = await duplicatedName(name);
+    if (duplicate) {
+      res.send(duplicate);
+    } else {
+      let user = new Auth({
+        username: name,
+        password: pw
+      });
+      user.save((err) => {
+        if (err) {
+          res.send(err);
+        } else {
+          res.send('true');
+        }
+      });
+    }
+  }
+})
+
 router.post('/signin', (req, res, next) => {
   let name = req.body.username;
   let pw = req.body.password;
@@ -72,7 +79,9 @@ router.post('/signin', (req, res, next) => {
   } else if (/[\."$*<>:|?\/]/.test(name)) {
     res.send('Special characters are not allowed.');
   } else {
-    Auth.findOne({ username: name }, (err, doc) => {
+    Auth.findOne({
+      username: name
+    }, (err, doc) => {
       if (!doc || err) {
         res.send(err || 'Please sign up first.');
       } else if (doc.password !== encrypt(pw)) {
