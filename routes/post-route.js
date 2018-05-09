@@ -1,10 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-let post = require('../db_models/post');
+let Post = require('../db_models/post');
 
-router.get('/post', (req, res, next) => {
-   // todo
+router.get('/posts', (req, res, next) => {
+   Post.find({}, (err, docs) => {
+    if (docs[0] || err) {
+      res.send(err);
+    } else {
+      res.send(docs);
+    }
+   })
 });
 
 router.post('/post', (req, res, next) => {
