@@ -8,7 +8,7 @@ const CommentSchema = new mongoose.Schema({
 })
 
 const PostSchema = new mongoose.Schema({
-    uid: {
+    userId: {
         type: String,
         required: true
     },
@@ -16,22 +16,14 @@ const PostSchema = new mongoose.Schema({
         type: String,
         required: true,
         index: true
-    },
-    author: {
-        type: String,
-        required: true
-    },
-    content: String,
+    },    
     createdAt: {
         type: Date,
         default: Date.now
     },
     description: String,
-    comments: [{
-        user: String,
-        dateStamp: Date,
-        comment: String,
-    }]
+    content: String,
+    comments: [CommentSchema]
 });
 
 const Post = db.model('post', PostSchema);

@@ -1,10 +1,11 @@
 const express = require('express');
 const encryption = require('../Services/encryption');
 const bodyParser = require('body-parser');
-const Auth = require('../db_models/auth');
 const locale = require('../locale');
+const router = express.Router();
 
-let router = express.Router();
+let Auth = require('../db_models/auth');
+
 const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const txtParser = bodyParser.text();
 
@@ -54,7 +55,8 @@ router.post('/signup', async (req, res, next) => {
         username: name,
         password: pw
       });
-      user.save((err) => {
+
+      user.save(err => {
         if (err) {
           res.send(err);
         } else {
@@ -82,7 +84,10 @@ router.post('/signin', (req, res, next) => {
       } else if (doc.password !== encryption.shaEncrypt(pw)) {
         res.send(locale.wrongPassword);
       } else {
-        res.send('true');
+        res.send({
+          "succeeded": true,
+          "userId": doc['_id']
+        });
       }
     });
   }
