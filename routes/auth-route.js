@@ -1,5 +1,5 @@
 const express = require('express');
-const encryption = require('../Services/encryption');
+const encryption = require('../core/encryption');
 const bodyParser = require('body-parser');
 const locale = require('../locale');
 const router = express.Router();

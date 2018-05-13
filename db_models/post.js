@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const db = require('../Services/mongoose');
+const db = require('../core/mongoose');
 
 const CommentSchema = new mongoose.Schema({
     user: String,
