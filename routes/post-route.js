@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 let Post = require('../db_models/post');
 
-router.post('/new', (req, res, next) => {
+router.post('/', (req, res, next) => {
   let post = req.body;
   if (post.userId && post.title) {
     post = new Post({
@@ -28,24 +28,27 @@ router.post('/new', (req, res, next) => {
   }
 })
 
-router.post('/posts', (req, res, next) => {
+router.get('/posts/:uid', (req, res, next) => {
   // get one user's all posts.
-  let userId = req.body.userId;
-  if (!userId) {
-    res.send(locale.userNotExist);
-  } else {
-    userId = mongoose.Types.ObjectId(userId);
-    Post.find({
-      'userId': userId
-    }, (err, docs) => {
-      if (docs[0]) {
-        res.send(docs);
-      } else {
-        res.send(err);
-      }
-    })
-  }
+  let userId = req.params.uid;
+  userId = mongoose.Types.ObjectId(userId);
+  Post.find({ 'userId': userId }, (err, docs) => {
+    if (docs[0]) {
+      res.send(docs);
+    } else {
+      res.send(err);
+    }
+  })
 });
 
+router.put('/:id', (req, res, next) => {
+  Post.findOneAndUpdate({ _id: req.params.id }, req.body, (err, doc) => {
+    if (doc) {
+      res.send('true');
+    } else {
+      res.send(err)
+    }
+  })
+})
 
 module.exports = router;

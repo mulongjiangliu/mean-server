@@ -6,7 +6,7 @@ const router = express.Router();
 
 let Auth = require('../db_models/auth');
 
-const emailRegex = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const txtParser = bodyParser.text();
 
 async function duplicatedName(name) {
