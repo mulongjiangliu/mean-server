@@ -26,29 +26,47 @@ router.post('/', (req, res, next) => {
   } else {
     res.send(locale.invalidEmail);
   }
-})
+});
 
 router.get('/posts/:uid', (req, res, next) => {
   // get one user's all posts.
   let userId = req.params.uid;
   userId = mongoose.Types.ObjectId(userId);
-  Post.find({ 'userId': userId }, (err, docs) => {
+  Post.find({
+    'userId': userId
+  }, (err, docs) => {
     if (docs[0]) {
       res.send(docs);
     } else {
       res.send(err);
     }
-  })
+  });
 });
 
 router.put('/:id', (req, res, next) => {
-  Post.findOneAndUpdate({ _id: req.params.id }, req.body, (err, doc) => {
+  Post.findOneAndUpdate({
+    _id: req.params.id
+  }, req.body, (err, doc) => {
     if (doc) {
       res.send('true');
     } else {
       res.send(err)
     }
-  })
-})
+  });
+});
+
+router.post('/comment', (req, res, next) => {
+  let post = new Post({
+    commets: [res.body]
+  });
+  post.save(err => {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send('true');
+    }
+  });
+});
+
 
 module.exports = router;

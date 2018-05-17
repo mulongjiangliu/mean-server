@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 const db = require('../core/mongoose');
 
-const CommentSchema = new mongoose.Schema({
-    user: String,
-    dateStamp: Date,
-    comment: String,
-})
 
 const PostSchema = new mongoose.Schema({
     userId: {
@@ -24,6 +19,12 @@ const PostSchema = new mongoose.Schema({
     description: String,
     content: String,
     comments: [CommentSchema]
+});
+
+const CommentSchema = new mongoose.Schema({
+    user: String,
+    dateStamp: Date,
+    comment: String,
 });
 
 const Post = db.model('post', PostSchema);

@@ -93,4 +93,15 @@ router.post('/signin', (req, res, next) => {
   }
 });
 
+router.post('/profile', (req, res, next) => {
+  let profile = new  {
+    nickname: req.body.nickname || '',
+    gender: !isNaN(req.body.gender) ? number(req.body.gender) : 0,
+    age: !isNaN(req.body.gender) ? number(req.body.gender) : 0,
+    region: req.body.region || '',
+    whatsup: req.body.whatsup || '',
+  };
+
+})
+
 module.exports = router;
