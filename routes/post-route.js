@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 let Post = require('../db_models/post');
 
 router.post('/', (req, res, next) => {
+  // create a new post.
   let post = req.body;
   if (post.userId && post.title) {
     post = new Post({
@@ -50,7 +51,17 @@ router.put('/:id', (req, res, next) => {
     if (doc) {
       res.send('true');
     } else {
-      res.send(err)
+      res.send(err);
+    }
+  })
+})
+
+router.delete('/:id', (req, res, next) => {
+  Post.deleteOne({ _id: req.params.id }, (err) => {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send('true');
     }
   });
 });
