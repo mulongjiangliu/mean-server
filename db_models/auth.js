@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const db = require('../core/mongoose');
 
 const AuthSchema = new mongoose.Schema({
-    username: {
+    email: {
         type: String,
         required: true,
         index: true
@@ -11,17 +11,35 @@ const AuthSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    profile: [ProfileSchema]
+    nickname: {
+        type: String,
+        default: ""
+    },
+    protrait: {
+        type: Buffer,
+        default: new Buffer(0)
+    },
+    age: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 130
+    },
+    gender: {
+        type: Number,
+        default: 0, // 0 for unkown, 1 for man, 2 for woman
+        min: 0
+    }, 
+    region: {
+        type: String,
+        default: ""
+    },
+    whatsup: {
+        type: String,
+        default: ""
+    },
 });
 
-const ProfileSchema = new mongoose.Schema({
-    nickname: String,
-    gender: Number,
-    age: Number,
-    region: String,
-    whatsup: String,
-});
-
-const Auth = db.model('auth', AuthSchema)
+const Auth = db.model('Auth', AuthSchema)
 
 module.exports = Auth;

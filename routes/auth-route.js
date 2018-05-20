@@ -3,25 +3,26 @@ const encryption = require('../core/encryption');
 const bodyParser = require('body-parser');
 const locale = require('../locale');
 const router = express.Router();
+const pick = require('lodash/pick');
 
 let Auth = require('../db_models/auth');
 
 const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-const txtParser = bodyParser.text();
+
 
 async function duplicatedName(name) {
   let ret = '';
   await Auth.findOne({
-    'username': name
+    'email': name
   }, (err, doc) => {
     if (doc || err) {
-      ret = err || 'Name already exits!';
+      ret = err || locale.existedEmial;
     }
   });
   return ret;
 }
 
-router.post('/checkname', txtParser, async (req, res, next) => {
+router.post('/checkname', bodyParser.text(), async (req, res, next) => {
   let name = req.body;
   if (!name) {
     res.send(locale.badRequest);
@@ -32,13 +33,13 @@ router.post('/checkname', txtParser, async (req, res, next) => {
     if (duplicate) {
       res.send(JSON.stringify(duplicate));
     } else {
-      res.send('true');
+      res.send(true);
     }
   }
 })
 
 router.post('/signup', async (req, res, next) => {
-  let name = req.body.username;
+  let name = req.body.email;
   let pw = req.body.password;
   if (!name && !pw) {
     res.send(locale.badRequest);
@@ -52,7 +53,7 @@ router.post('/signup', async (req, res, next) => {
       res.send(duplicate);
     } else {
       let user = new Auth({
-        username: name,
+        email: name,
         password: pw
       });
 
@@ -60,7 +61,7 @@ router.post('/signup', async (req, res, next) => {
         if (err) {
           res.send(err);
         } else {
-          res.send('true');
+          res.send(true);
         }
       });
     }
@@ -68,16 +69,16 @@ router.post('/signup', async (req, res, next) => {
 })
 
 router.post('/signin', (req, res, next) => {
-  let name = req.body.username;
+  let email = req.body.email;
   let pw = req.body.password;
-  if (!name && !pw) {
+  if (!email && !pw) {
     res.send(locale.badRequest);
-  } else if (!emailRegex.test(name)) {
+  } else if (!emailRegex.test(email)) {
     res.send(locale.invalidEmail);
   } else {
-    name = encryption.aesEncrypt(name);
+    email = encryption.aesEncrypt(email);
     Auth.findOne({
-      username: name
+      email: email
     }, (err, doc) => {
       if (!doc || err) {
         res.send(err || locale.signUp);
@@ -93,15 +94,60 @@ router.post('/signin', (req, res, next) => {
   }
 });
 
-router.post('/profile', (req, res, next) => {
-  let profile = new  {
-    nickname: req.body.nickname || '',
-    gender: !isNaN(req.body.gender) ? number(req.body.gender) : 0,
-    age: !isNaN(req.body.gender) ? number(req.body.gender) : 0,
-    region: req.body.region || '',
-    whatsup: req.body.whatsup || '',
+router.put('/:uid', (req, res, next) => {
+  const update = {
+    $set: req.body
+  };
+  const options = {
+    new: true
   };
 
+  Auth.findOneAndUpdate({
+    _id: req.params.uid
+  }, update, options, (err, doc) => {
+    if (doc) {
+      let rets = ["nickname", "gender", "region", "whatsup"];
+      res.send(pick(doc, rets));
+    } else {
+      res.send(err || locale.notFound);
+    }
+  });
 })
+
+router.get('/protrait/:uid', (req, res, next) => {
+  let imgHeader = {
+    'Content-Type': 'image/png',
+    'Cach-control': 'private',
+    'max-age': '10',
+    'Vary': 'Accept-Encoding'
+  };
+
+  Auth.findById(req.params.uid, (err, doc) => {
+    if (doc) {
+      res.writeHead('200', imgHeader);
+      res.end(doc.protrait, 'binary');
+    } else {
+      res.send(err || locale.notFound);
+    }
+  });
+});
+
+router.put('/protrait/:uid', bodyParser.raw(), (req, res, next) => {
+  const update = {
+    $set: {
+      protrait: req.body
+    }
+  };
+
+  Auth.findOneAndUpdate({
+    _id: req.params.uid
+  }, update, (err, doc) => {
+    if (doc) {
+      res.send(true);
+    } else {
+      res.send(err || locale.notFound);
+    }
+  });
+});
 
 module.exports = router;

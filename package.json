@@ -13,6 +13,7 @@
     "debug": "~2.6.9",
     "ejs": "^2.5.9",
     "express": "~4.15.5",
+    "lodash": "^4.17.10",
     "mongoose": "^5.0.17"
   },
   "devDependencies": {
