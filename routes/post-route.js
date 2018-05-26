@@ -28,8 +28,8 @@ router.get('/posts/:uid', (req, res, next) => {
   // get one user's 5 posts with 5 comments by default.
   let start = Math.ceil(Math.abs(req.query.start));
   let count = Math.ceil(Math.abs(req.query.count));
-  start = !isNaN(Number(start)) && isFinite(start) ? start : 0;
-  count = !isNaN(Number(count)) && count <= 20 ? count : 5;
+  start = !isNaN(start) && isFinite(start) ? start : 0;
+  count = !isNaN(count) && 0< count <= 20 ? count : 5;
   let userId = req.params.uid;
   userId = mongoose.Types.ObjectId(userId);
   Post.find({
@@ -99,21 +99,20 @@ router.post('/comment/:pid', (req, res, next) => {
 });
 
 router.get('/comments/:pid', (req, res, next) => {
-  // get one post's 5 comments by default.
+  // get one post's 5 latest comments by default.
+  let start = Math.ceil(Math.abs(req.query.start));  
   let count = Math.ceil(Math.abs(req.query.count));
-  count = !isNaN(Number(count)) && 0 < count <= 20 ? count : 5;
-  Post.findById(req.params.pid)
-    .sort({
-      _id: -1
-    })
-    .limit(count)
-    .exec((err, docs) => {
-      if (docs[0]) {
-        res.send(docs);
-      } else {
-        res.send(err || locale.notFound);
-      }
-    });
+  start = !isNaN(start) && isFinite(start) ? start : 0;  
+  count = !isNaN(count) && 0 < count <= 20 ? count : 5;
+  Post.findById(req.params.pid, (err, doc) => {
+    if (doc) {
+      let length = doc.comments.length;
+      comments = doc.comments.slice(length - start - count, length - start).reverse();
+      res.send(comments);
+    } else {
+      res.send(err || locale.notFound);
+    }
+  });
 });
 
 module.exports = router;
